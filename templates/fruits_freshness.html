@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fruits Freshness</title>
+    <link rel="stylesheet" href="../static/home.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+</head>
+<body>
+    <div class="navbar">
+        <a href="/">Product Recognition</a>
+        <a href="/fruits">Fruits Freshness</a>
+    </div>
+    <h1>Fruits Freshness</h1>
+
+    <!-- Fruits Freshness Section -->
+    <div class="container">
+        <div class="fruits-section">
+            <p>Please run the freshness check for your fruits.</p>
+            <button class="submit-btn" id="runButton">Run</button>
+            <button class="submit-btn" id="stopButton">Stop</button>
+            <div id="result" class="result-section"></div>
+        </div>
+    </div>
+
+    <script>
+      document.getElementById("runButton").addEventListener("click", function() {
+          fetch('/live_detection')
+              .then(response => response.json())
+              .then(data => {
+                  console.log(data.status);
+              })
+              .catch(error => console.error('Error:', error));
+      });
+  
+      document.getElementById("stopButton").addEventListener("click", function() {
+          fetch('/stop_detection', { method: 'POST' })  // Send a request to stop detection
+              .then(response => response.json())
+              .then(data => {
+                  console.log(data.status);
+                  document.getElementById("result").style.display = "none";  // Hide the result section
+              })
+              .catch(error => console.error('Error:', error));
+      });
+  </script>
+  
+</body>
+</html>

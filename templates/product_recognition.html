@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flipkart Grid</title>
+    <link rel="stylesheet" href="../static/home.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    
+  </head>
+  <body>
+    <div class="navbar">
+      <a href="/" >Product Recognition</a>
+      <a href="/fruits">Fruits Freshness</a>
+    </div>
+
+    <h1>Product Recognition</h1>
+
+    <!-- Container for both file upload and product output -->
+    <div class="container">
+      <!-- File Upload Section -->
+      <div class="file-upload-section">
+        <div class="file-upload" id="fileUploadSection">
+          <label for="frontImageInput">Choose front side image</label>
+          <input type="file" id="frontImageInput" />
+          <div class="file-name" id="frontFileNameDisplay">No file chosen</div>
+
+          <br />
+
+          <label for="backImageInput">Choose back side image</label>
+          <input type="file" id="backImageInput" />
+          <div class="file-name" id="backFileNameDisplay">No file chosen</div>
+        </div>
+        <button class="submit-btn" id="submitButton">Submit</button>
+        <button class="refresh-btn" id="refreshButton">Refresh</button>
+      </div>
+
+      <!-- Product Display Section -->
+      <div class="product-card" id="productCard">
+        <div class="product-image-container">
+          <img
+            src=""
+            alt="Front Product Image"
+            class="product-image"
+            id="frontProductImage"
+          />
+          <img
+            src=""
+            alt="Back Product Image"
+            class="product-image"
+            id="backProductImage"
+          />
+        </div>
+        <div class="product-details">
+          <h2 class="brand-name" id="brandName">Brand Name</h2>
+          <p class="description" id="productDescription">
+            This is a brief description of the product, highlighting its
+            features and benefits.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  
+  <script>
+    const frontImageInput = document.getElementById("frontImageInput");
+    const backImageInput = document.getElementById("backImageInput");
+    const frontProductImage = document.getElementById("frontProductImage");
+    const backProductImage = document.getElementById("backProductImage");
+    const brandName = document.getElementById("brandName");
+    const productDescription = document.getElementById("productDescription");
+    const productCard = document.getElementById("productCard");
+    const submitButton = document.getElementById("submitButton");
+    const refreshButton = document.getElementById("refreshButton");
+    const frontFileNameDisplay = document.getElementById("frontFileNameDisplay");
+    const backFileNameDisplay = document.getElementById("backFileNameDisplay");
+  
+    // Handle file upload and display for front image
+    frontImageInput.addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          frontProductImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        frontFileNameDisplay.textContent = file.name;
+      } else {
+        frontFileNameDisplay.textContent = "No file chosen";
+      }
+    });
+  
+    // Handle file upload and display for back image
+    backImageInput.addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          backProductImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        backFileNameDisplay.textContent = file.name;
+      } else {
+        backFileNameDisplay.textContent = "No file chosen";
+      }
+    });
+  
+    // Handle submit button click
+    submitButton.addEventListener("click", async function () {
+      if (frontImageInput.files.length > 0 && backImageInput.files.length > 0) {
+        // Prepare FormData to send both front and back images to backend
+        const formData = new FormData();
+        formData.append('front_image', frontImageInput.files[0]);
+        formData.append('back_image', backImageInput.files[0]);
+  
+        try {
+          const response = await fetch('/predict', {
+            method: 'POST',
+            body: formData
+          });
+  
+          const data = await response.json();
+  
+          // Check if prediction was successful
+          if (data.predicted_brand) {
+            // Display the predicted brand from the front image
+            brandName.textContent = data.predicted_brand;
+  
+            // Display description and expiry date fetched from the back image
+            productDescription.textContent = data.description || "No description available.";
+  
+            productCard.style.display = "block";
+          } else {
+            alert('Prediction failed. Please try again.');
+          }
+  
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error occurred while making the prediction. Please try again.');
+        }
+      } else {
+        alert("Please upload both front and back images before submitting.");
+      }
+    });
+  
+    // Handle refresh button click
+    refreshButton.addEventListener("click", function () {
+      frontImageInput.value = "";
+      backImageInput.value = "";
+      frontFileNameDisplay.textContent = "No file chosen";
+      backFileNameDisplay.textContent = "No file chosen";
+      productCard.style.display = "none";
+      frontProductImage.src = "";
+      backProductImage.src = "";
+      brandName.textContent = "Brand Name";
+      productDescription.textContent = "This is a brief description of the product, highlighting its features and benefits.";
+    });
+  </script>
+
+
+  </body>
+</html>
+
